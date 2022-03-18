@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState, useContext } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -12,6 +12,11 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import Link from "next/link";
+import { Context } from "../context";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useRouter } from "next/router";
+
 const pages = [
   {
     txt: "Home",
@@ -30,8 +35,19 @@ const pages = [
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 const Navbar = () => {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const { state, dispatch } = useContext(Context);
+  // router
+  const router = useRouter();
+  const logout = async () => {
+    dispatch({ type: "LOGOUT" });
+    window.localStorage.removeItem("user");
+    const { data } = await axios.get(`/api/logout`);
+    toast(data.message);
+    router.push("/login");
+  };
+
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -152,7 +168,16 @@ const Navbar = () => {
             >
               {settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
+                  <Typography
+                    onClick={() => {
+                      if (setting == "Logout") {
+                        logout();
+                      }
+                    }}
+                    textAlign="center"
+                  >
+                    {setting}
+                  </Typography>
                 </MenuItem>
               ))}
             </Menu>

@@ -6,6 +6,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import createEmotionCache from "../lib/createEmotionCache";
 import Navbar from "../components/Navbar";
+import { Provider } from "../context";
 
 import "../styles/globals.css";
 import theme from "../lib/theme";
@@ -15,7 +16,7 @@ const clientSideEmotionCache = createEmotionCache();
 function MyApp(props) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   return (
-    <>
+    <Provider>
       <ToastContainer
         position="top-right"
         autoClose={4000}
@@ -39,7 +40,7 @@ function MyApp(props) {
           <Component {...pageProps} />
         </ThemeProvider>
       </CacheProvider>
-    </>
+    </Provider>
   );
 }
 

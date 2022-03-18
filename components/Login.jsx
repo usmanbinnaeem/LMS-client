@@ -1,5 +1,5 @@
 import { Formik, Field, ErrorMessage } from "formik";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import Link from "next/link";
 import * as Yup from "yup";
 import Box from "@mui/material/Box";
@@ -8,6 +8,8 @@ import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { Context } from "../context";
+import { useRouter } from "next/router";
 
 const schema = Yup.object({
   email: Yup.string().email("Invalid email address").required("Email Required"),
@@ -19,6 +21,11 @@ const schema = Yup.object({
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
+  const { state, dispatch } = useContext(Context);
+
+  // router
+  const router = useRouter();
+  console.log("State", state);
   return (
     <Formik
       initialValues={{
@@ -32,14 +39,23 @@ const Login = () => {
           const { data } = await axios.post(`/api/login`, {
             values,
           });
-          console.log("login response data", data);
-        //   toast.success("Registeration Successfull, Please Login");
+          // console.log("login response data", data);
+          //   toast.success("Registeration Successfull, Please Login");
+          dispatch({
+            type: "LOGIN",
+            payload: data,
+          });
+          // save in local storage
+          window.localStorage.setItem("user", JSON.stringify(data));
           actions.resetForm({
             values: {
               email: "",
               password: "",
             },
           });
+
+          // redirect
+          router.push("/");
           setLoading(false);
         } catch (err) {
           toast.error(err.response.data);
@@ -97,9 +113,7 @@ const Login = () => {
                 color="primary"
                 sx={{ width: 350 }}
                 disabled={
-                  !formik.values.email ||
-                  !formik.values.password ||
-                  loading
+                  !formik.values.email || !formik.values.password || loading
                 }
               >
                 {loading ? <CircularProgress /> : "Login"}
