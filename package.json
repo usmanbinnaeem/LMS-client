@@ -16,6 +16,7 @@
     "@mui/icons-material": "^5.5.0",
     "@mui/material": "^5.5.0",
     "autoprefixer": "^10.4.2",
+    "axios": "^0.26.1",
     "formik": "^2.2.9",
     "next": "12.1.0",
     "postcss": "^8.4.8",

@@ -3,6 +3,7 @@ import * as Yup from "yup";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import axios from "axios";
 
 const schema = Yup.object({
   firstName: Yup.string()
@@ -21,15 +22,22 @@ const schema = Yup.object({
 const Register = () => {
   return (
     <Formik
-      initialValues={{ firstName: "", lastName: "", email: "", password: "" }}
+      initialValues={{
+        firstName: "usman",
+        lastName: "naeem",
+        email: "example@gmail.com",
+        password: "12345678",
+      }}
       validationSchema={schema}
-      onSubmit={(values, actions) => {
-        console.table(
-          values.firstName,
-          values.lastName,
-          values.email,
-          values.password
+      onSubmit={async (values, actions) => {
+        const { data } = await axios.post(
+          `http://localhost:8000/api/register`,
+          {
+            values,
+          }
         );
+        console.log("response data", data);
+
         actions.resetForm({
           values: {
             firstName: "",
@@ -110,7 +118,6 @@ const Register = () => {
                 helperText={<ErrorMessage name="password" />}
                 variant="standard"
                 required
-               
               />
             </div>
             <div className="flex justify-center text-6xl p-6">
