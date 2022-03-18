@@ -10,12 +10,6 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const schema = Yup.object({
-  firstName: Yup.string()
-    .max(15, "Must be 10 characters or less")
-    .required("First Name Required"),
-  lastName: Yup.string()
-    .max(20, "Must be 10 characters or less")
-    .required("Last name Required"),
   email: Yup.string().email("Invalid email address").required("Email Required"),
   password: Yup.string()
     .min(8, "Password is too short.")
@@ -23,13 +17,11 @@ const schema = Yup.object({
     .required("This field is required."),
 });
 
-const Register = () => {
+const Login = () => {
   const [loading, setLoading] = useState(false);
   return (
     <Formik
       initialValues={{
-        firstName: "",
-        lastName: "",
         email: "",
         password: "",
       }}
@@ -37,15 +29,13 @@ const Register = () => {
       onSubmit={async (values, actions) => {
         try {
           setLoading(true);
-          const { data } = await axios.post(`/api/register`, {
+          const { data } = await axios.post(`/api/login`, {
             values,
           });
-          // console.log("response data", data);
-          toast.success("Registeration Successfull, Please Login");
+          console.log("login response data", data);
+        //   toast.success("Registeration Successfull, Please Login");
           actions.resetForm({
             values: {
-              firstName: "",
-              lastName: "",
               email: "",
               password: "",
             },
@@ -69,36 +59,6 @@ const Register = () => {
             noValidate
             // autoComplete="off"
           >
-            <div className="flex justify-center text-6xl p-3">
-              <Field
-                as={TextField}
-                fullWidth
-                type="text"
-                name="firstName"
-                id="firstName"
-                label="First Name"
-                value={formik.values.firstName}
-                onChange={formik.handleChange}
-                helperText={<ErrorMessage name="firstName" />}
-                variant="standard"
-                required
-              />
-            </div>
-            <div className="flex justify-center text-6xl p-3">
-              <Field
-                as={TextField}
-                fullWidth
-                type="text"
-                name="lastName"
-                id="lastName"
-                label="Last Name"
-                value={formik.values.lastName}
-                onChange={formik.handleChange}
-                helperText={<ErrorMessage name="lastName" />}
-                variant="standard"
-                required
-              />
-            </div>
             <div className="flex justify-center text-6xl p-3">
               <Field
                 as={TextField}
@@ -137,21 +97,19 @@ const Register = () => {
                 color="primary"
                 sx={{ width: 350 }}
                 disabled={
-                  !formik.values.firstName ||
-                  !formik.values.lastName ||
                   !formik.values.email ||
                   !formik.values.password ||
                   loading
                 }
               >
-                {loading ? <CircularProgress /> : "Submit"}
+                {loading ? <CircularProgress /> : "Login"}
               </Button>
             </div>
           </Box>
           <p className="text-center p-3">
-            Already Registered?{" "}
-            <Link href={"/login"}>
-              <a className="text-blue-500">Login</a>
+            Don't have Account?{" "}
+            <Link href={"/register"}>
+              <a className="text-blue-500">Please Register First</a>
             </Link>
           </p>
         </div>
@@ -160,4 +118,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;
