@@ -1,4 +1,6 @@
 import { useReducer, createContext, useEffect } from "react";
+import axios from "axios";
+import { useRouter } from "next/router";
 
 // initial State
 const initialState = {
@@ -22,12 +24,52 @@ const rootReducer = (state, action) => {
 
 //context provider
 const Provider = ({ children }) => {
+  // router
+  const router = useRouter();
+
   const [state, dispatch] = useReducer(rootReducer, initialState);
   useEffect(() => {
     dispatch({
       type: "LOGIN",
       payload: JSON.parse(window.localStorage.getItem("user")),
     });
+  }, []);
+
+  axios.interceptors.response.use(
+    function (response) {
+      // any status code that lie with in the range of 2xx cause this fun to trigger
+      return response;
+    },
+    function (error) {
+      // any status code that falls outside the range of 2xx cause this func to trigger
+      let res = error.response;
+      if (res.status === 401 && res.config && !res.config.__isRetryRequest) {
+        return new Promise((resolve, reject) => {
+          axios
+            .get("/api/logout")
+            .then((data) => {
+              console.log("/401 Error logout");
+              dispatch({ type: "LOGOUT" });
+              window.localStorage.removeItem("user");
+              router.push("/login");
+            })
+            .catch((err) => {
+              console.log("AXIOS INTERCEPTERS ERROR", err);
+              reject(error);
+            });
+        });
+      }
+      return Promise.reject(error);
+    }
+  );
+
+  useEffect(() => {
+    const getCsrfToken = async () => {
+      const { data } = await axios.get("/api/csrf-token");
+      // console.log("csrf", data);
+      axios.defaults.headers["X-CSRF-Token"] = data.getCsrfToken;
+    };
+    getCsrfToken();
   }, []);
   return (
     <Context.Provider value={{ state, dispatch }}>{children}</Context.Provider>

@@ -1,5 +1,5 @@
 import { Formik, Field, ErrorMessage } from "formik";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import Link from "next/link";
 import * as Yup from "yup";
 import Box from "@mui/material/Box";
@@ -22,10 +22,17 @@ const schema = Yup.object({
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const { state, dispatch } = useContext(Context);
-
+  const { user } = state;
+  
   // router
   const router = useRouter();
-  console.log("State", state);
+
+  useEffect(() => {
+    if(user !== null){
+      router.push("/")
+    }
+  },[user])
+  // console.log("State", state);
   return (
     <Formik
       initialValues={{

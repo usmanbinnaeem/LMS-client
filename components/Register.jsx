@@ -1,5 +1,6 @@
 import { Formik, Field, ErrorMessage } from "formik";
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
+import { useRouter } from "next/router";
 import Link from "next/link";
 import * as Yup from "yup";
 import Box from "@mui/material/Box";
@@ -8,6 +9,7 @@ import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { Context } from "../context";
 
 const schema = Yup.object({
   firstName: Yup.string()
@@ -25,6 +27,15 @@ const schema = Yup.object({
 
 const Register = () => {
   const [loading, setLoading] = useState(false);
+  const { state } = useContext(Context);
+  const { user } = state;
+  // router
+  const router = useRouter();
+  useEffect(() => {
+    if (user !== null) {
+      router.push("/");
+    }
+  }, [user]);
   return (
     <Formik
       initialValues={{
