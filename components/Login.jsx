@@ -133,6 +133,12 @@ const Login = () => {
               <a className="text-blue-500">Please Register First</a>
             </Link>
           </p>
+          <p className="text-center p-3">
+            Do You Forgot Password?{" "}
+            <Link href={"/forgot-password"}>
+              <a className="text-red-500">Reset Here</a>
+            </Link>
+          </p>
         </div>
       )}
     </Formik>
