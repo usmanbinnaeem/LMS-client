@@ -34,8 +34,8 @@ const pages = [
     link: "/",
   },
   {
-    txt: "Categories",
-    link: "/",
+    txt: "Become Instructor",
+    link: "/user/become-instructor",
   },
 ];
 
@@ -128,7 +128,7 @@ const Navbar = () => {
             variant="h6"
             noWrap
             component="div"
-            sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}
+            sx={{flexGrow: 1, display: { xs: "flex", md: "none" } }}
           >
             <Link href={"/"}>
               <a> LOGO</a>
@@ -137,7 +137,8 @@ const Navbar = () => {
 
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page, index) => (
-              <Link key={index} href={page.link}>
+              user && user.role && !user.role.includes("Instructor") && page.txt === "Become Instructor" ? (
+                <Link key={index} href={page.link}>
                 <Button
                   onClick={handleCloseNavMenu}
                   sx={{ my: 2, color: "white", display: "block" }}
@@ -145,6 +146,17 @@ const Navbar = () => {
                   {page.txt}
                 </Button>
               </Link>
+              ) : page.txt !== "Become Instructor" && (
+                <Link key={index} href={page.link}>
+                <Button
+                  onClick={handleCloseNavMenu}
+                  sx={{ my: 2, color: "white", display: "block" }}
+                >
+                  {page.txt}
+                </Button>
+              </Link>
+              )
+              
             ))}
           </Box>
 

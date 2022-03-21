@@ -29,7 +29,7 @@ const Login = () => {
 
   useEffect(() => {
     if(user !== null){
-      router.push("/")
+      router.push("/user/dashboard")
     }
   },[user])
   // console.log("State", state);
@@ -62,7 +62,7 @@ const Login = () => {
           });
 
           // redirect
-          router.push("/");
+          router.push("/user/dashboard");
           setLoading(false);
         } catch (err) {
           toast.error(err.response.data);
