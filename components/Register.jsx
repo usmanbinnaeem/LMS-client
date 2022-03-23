@@ -53,6 +53,7 @@ const Register = () => {
           });
           // console.log("response data", data);
           toast.success("Registeration Successfull, Please Login");
+          router.push('/login')
           actions.resetForm({
             values: {
               firstName: "",
