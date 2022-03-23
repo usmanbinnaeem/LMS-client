@@ -13,7 +13,7 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
@@ -128,7 +128,7 @@ const Navbar = () => {
             variant="h6"
             noWrap
             component="div"
-            sx={{flexGrow: 1, display: { xs: "flex", md: "none" } }}
+            sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}
           >
             <Link href={"/"}>
               <a> LOGO</a>
@@ -136,28 +136,32 @@ const Navbar = () => {
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page, index) => (
-              user && user.role && !user.role.includes("Instructor") && page.txt === "Become Instructor" ? (
+            {pages.map((page, index) =>
+              user &&
+              user.role &&
+              !user.role.includes("Instructor") &&
+              page.txt === "Become Instructor" ? (
                 <Link key={index} href={page.link}>
-                <Button
-                  onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  {page.txt}
-                </Button>
-              </Link>
-              ) : page.txt !== "Become Instructor" && (
-                <Link key={index} href={page.link}>
-                <Button
-                  onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: "white", display: "block" }}
-                >
-                  {page.txt}
-                </Button>
-              </Link>
+                  <Button
+                    onClick={handleCloseNavMenu}
+                    sx={{ my: 2, color: "white", display: "block" }}
+                  >
+                    {page.txt}
+                  </Button>
+                </Link>
+              ) : (
+                page.txt !== "Become Instructor" && (
+                  <Link key={index} href={page.link}>
+                    <Button
+                      onClick={handleCloseNavMenu}
+                      sx={{ my: 2, color: "white", display: "block" }}
+                    >
+                      {page.txt}
+                    </Button>
+                  </Link>
+                )
               )
-              
-            ))}
+            )}
           </Box>
 
           {user !== null && (
@@ -215,6 +219,7 @@ const Navbar = () => {
                   </ListItemIcon>
                   {user && user.firstName + " " + user.lastName}
                 </MenuItem>
+
                 <MenuItem>
                   <ListItemIcon>
                     {" "}
@@ -228,9 +233,19 @@ const Navbar = () => {
                     <DashboardOutlinedIcon fontSize="small" />
                   </ListItemIcon>
                   <Link href={"/user/dashboard"}>
-                    <a> Dashboard</a>
+                    <a>Dashboard</a>
                   </Link>
                 </MenuItem>
+                {user && user.role && user.role.includes("Instructor") && (
+                  <MenuItem>
+                    <ListItemIcon>
+                      <DashboardOutlinedIcon fontSize="small" />
+                    </ListItemIcon>
+                    <Link href={"/instructor"}>
+                      <a>Instructor Dashboard</a>
+                    </Link>
+                  </MenuItem>
+                )}
                 <MenuItem>
                   <ListItemIcon>
                     <Settings fontSize="small" />

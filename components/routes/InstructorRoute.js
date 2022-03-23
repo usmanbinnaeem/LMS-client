@@ -15,6 +15,7 @@ import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import CreateNewFolderOutlinedIcon from "@mui/icons-material/CreateNewFolderOutlined";
 import LinearProgress from "@mui/material/LinearProgress";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -49,6 +50,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "flex-end",
   padding: theme.spacing(0, 1),
+  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }));
 
@@ -69,7 +71,7 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-export default function UserRoute({ children }) {
+export default function InstructorRoute({ children }) {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [ok, setOk] = useState(false);
@@ -81,17 +83,18 @@ export default function UserRoute({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    fetchUser();
+    fetchInstructor();
   }, []);
 
-  const fetchUser = async () => {
+  const fetchInstructor = async () => {
     try {
-      const { data } = await axios.get("/api/current-user");
+      const { data } = await axios.get("/api/current-instructor");
       if (data.ok) setOk(true);
+      // console.log("current user data", data);
     } catch (err) {
       console.log(err);
       setOk(false);
-      router.push("/login");
+      router.push("/");
     }
   };
 
@@ -115,6 +118,7 @@ export default function UserRoute({ children }) {
               onClick={handleDrawerOpen}
               edge="start"
               sx={{
+                // marginRight: 5,
                 ...(open && { display: "none" }),
               }}
             >
@@ -132,27 +136,60 @@ export default function UserRoute({ children }) {
         </DrawerHeader>
         <Divider />
         <List>
-          <ListItemButton
-            sx={{
-              minHeight: 48,
-              justifyContent: open ? "initial" : "center",
-              px: 2.5,
-            }}
-          >
-            <ListItemIcon
-              sx={{
-                minWidth: 0,
-                mr: open ? 3 : "auto",
-                justifyContent: "center",
-              }}
-            >
-              <DashboardOutlinedIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary={"Dashboard"}
-              sx={{ opacity: open ? 1 : 0 }}
-            />
-          </ListItemButton>
+          {user && user.role && user.role.includes("Instructor") && (
+            <Link href={"/instructor"}>
+              <a>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <DashboardOutlinedIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={"Dashboard"}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </ListItemButton>
+              </a>
+            </Link>
+          )}
+          {user && user.role && user.role.includes("Instructor") && (
+            <Link href={"/instructor/course/create"}>
+              <a>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <CreateNewFolderOutlinedIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={"Create Course"}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </ListItemButton>
+              </a>
+            </Link>
+          )}
         </List>
         <Divider />
         <List>
