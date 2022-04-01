@@ -106,7 +106,15 @@ export default function UserRoute({ children }) {
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <Drawer variant="permanent" open={open}>
+      <Drawer
+        variant="permanent"
+        open={open}
+        sx={{
+          "& .MuiDrawer-paper": {
+            top: "70px",
+          },
+        }}
+      >
         <DrawerHeader>
           {!open ? (
             <IconButton
