@@ -1,13 +1,20 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import InstructorRoute from "../../../../components/routes/InstructorRoute";
 import axios from "axios";
 import EditIcon from "@mui/icons-material/Edit";
 import PublishIcon from "@mui/icons-material/Publish";
 import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
-import ReactMarkdown from "react-markdown";
 import Dialog from "@mui/material/Dialog";
+import Box from "@mui/material/Box";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import InstructorRoute from "../../../../components/routes/InstructorRoute";
+import ReactMarkdown from "react-markdown";
 import AddLessons from "../../../../components/forms/AddLessons";
 import Image from "next/image";
 import { toast } from "react-toastify";
@@ -18,12 +25,11 @@ const CourseView = () => {
   const [values, setValues] = useState({
     title: "",
     content: "",
-    video: "",
+    video: {},
   });
   const [uploading, setUploading] = useState(false);
   const [uploadButton, setUploadButton] = useState("Upload Video");
   const [progress, setProgress] = useState(0);
-
   const router = useRouter();
   const { slug } = router.query;
 
@@ -32,9 +38,22 @@ const CourseView = () => {
   }, [slug]);
 
   //Functions for Add lessons
-  const handleAddLesson = (e) => {
+  const handleAddLesson = async (e) => {
     e.preventDefault();
-    console.log(values);
+    try {
+      const { data } = await axios.post(
+        `/api/course/lesson/${slug}/${course.instructor._id}`,
+        values
+      );
+      setValues({ ...values, title: "", content: "", video: {} });
+      setOpen(false);
+      setUploadButton("Upload video");
+      setCourse(data);
+      toast.success("Lesson added Successfully");
+    } catch (err) {
+      console.log(err);
+      toast.error("Lesson failed to add");
+    }
   };
 
   const handleVideo = async (e) => {
@@ -46,11 +65,15 @@ const CourseView = () => {
       videoData.append("video", file);
 
       //progressbar
-      const { data } = await axios.post("/api/course/video-upload", videoData, {
-        onUploadProgress: (e) => {
-          setProgress(Math.round((100 * e.loaded) / e.total));
-        },
-      });
+      const { data } = await axios.post(
+        `/api/course/video-upload/${course.instructor._id}`,
+        videoData,
+        {
+          onUploadProgress: (e) => {
+            setProgress(Math.round((100 * e.loaded) / e.total));
+          },
+        }
+      );
       console.log(data);
       setValues({ ...values, video: data });
       setUploading(false);
@@ -74,6 +97,38 @@ const CourseView = () => {
     setCourse(data);
   };
 
+  const handleVideoRemove = async () => {
+    try {
+      setUploading(false);
+      const { data } = await axios.post(
+        `/api/course/remove-video/${course.instructor._id}`,
+        values.video
+      );
+      console.log(data);
+      setValues({ ...values, video: {} });
+      setUploading(false);
+      setUploadButton("Upload Video");
+    } catch (err) {
+      console.log(err);
+      setUploading(false);
+      toast.error("Video Remove Failed");
+    }
+  };
+
+  const listLessons = () => {
+    return course?.lessons?.map((c, index) => {
+      return (
+        <ListItem key={index} disablePadding>
+          <ListItemButton>
+            <ListItemIcon>
+              <PlayArrowIcon />
+            </ListItemIcon>
+            <ListItemText primary={c.title} />
+          </ListItemButton>
+        </ListItem>
+      );
+    });
+  };
   return (
     <InstructorRoute>
       <div>
@@ -89,18 +144,18 @@ const CourseView = () => {
             <div className="p-6">
               <div>
                 <span className="text-xs font-medium text-blue-600 uppercase dark:text-blue-400">
-                  {course.category}&emsp;&emsp;&emsp;&emsp;&emsp;{" "}
+                  {course.category}&emsp;&emsp;&emsp;{" "}
                 </span>{" "}
                 <span className="text-xs font-medium text-yellow-400 uppercase dark:text-yellow-400">
                   {" "}
                   {course.lessons && course.lessons.length} Lessons
-                  &emsp;&emsp;&emsp;&emsp;&emsp;{" "}
+                  &emsp;&emsp;&emsp;{" "}
                 </span>
                 <span className="mx-1 text-xs ">
                   <Button variant="outlined" onClick={handleClickOpen}>
                     Add lesson's
                   </Button>
-                  &emsp;&emsp;&emsp;&emsp;{" "}
+                  &emsp;&emsp;&emsp;{" "}
                   <Dialog open={open} onClose={handleClose}>
                     <AddLessons
                       handleClose={handleClose}
@@ -112,16 +167,22 @@ const CourseView = () => {
                       uploadButton={uploadButton}
                       setUploadButton={setUploadButton}
                       handleVideo={handleVideo}
+                      progress={progress}
+                      handleVideoRemove={handleVideoRemove}
                     />
                   </Dialog>
                 </span>
                 <span className="mx-1 text-xs text-gray-600 dark:text-gray-300">
                   <Tooltip title="Edit" placement="top">
                     <Button color="warning">
-                      <EditIcon />
+                      <EditIcon
+                        onClick={() =>
+                          router.push(`/instructor/course/edit/${slug}`)
+                        }
+                      />
                     </Button>
                   </Tooltip>
-                  &emsp;&emsp;&emsp;{" "}
+                  &emsp;&emsp;{" "}
                 </span>
                 <span className="mx-1 text-xs text-gray-600 dark:text-gray-300">
                   <Tooltip title="Publish" placement="top">
@@ -144,11 +205,6 @@ const CourseView = () => {
               <div className="mt-4">
                 <div className="flex items-center">
                   <div className="flex items-center">
-                    {/* <img
-                      className="object-cover h-10 rounded-full"
-                      src="https://images.unsplash.com/photo-1586287011575-a23134f797f9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=48&q=60"
-                      alt="Avatar"
-                    /> */}
                     <a
                       href="#"
                       className="mx-2 font-semibold text-gray-700 dark:text-gray-200"
@@ -158,6 +214,19 @@ const CourseView = () => {
                   </div>
                 </div>
               </div>
+            </div>
+            <div className="p-6">
+              <h3 className="text-2xl font-semibold text-gray-800">
+                {course && course.lessons && course.lessons.length} Lessons
+              </h3>
+              <Box
+                sx={{
+                  width: "100%",
+                  bgcolor: "background.paper",
+                }}
+              >
+                <List>{listLessons()}</List>
+              </Box>
             </div>
           </div>
         )}

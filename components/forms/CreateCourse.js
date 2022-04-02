@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+
 const CreateCourse = ({
   handleSubmit,
   handleImage,
@@ -11,6 +11,7 @@ const CreateCourse = ({
   uploadButton,
   handleImageRemove,
 }) => {
+
   const children = [];
   for (let i = 9.99; i <= 100.99; i++) {
     children.push(<option key={i.toFixed(2)}>${i.toFixed(2)}</option>);
@@ -124,7 +125,7 @@ const CreateCourse = ({
             disabled={values.loading || values.uploading}
             loading={values.loading}
           >
-            {values.loading ? "Saving..." : "Save & Continue"}
+            {values.loading ? "Uploading..." : "Save & Continue"}
           </Button>
         </div>
       </form>

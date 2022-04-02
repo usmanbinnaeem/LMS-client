@@ -4,6 +4,10 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
+import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
+import Tooltip from "@mui/material/Tooltip";
+import CancelPresentationIcon from "@mui/icons-material/CancelPresentation";
 
 const AddLessons = ({
   handleVideo,
@@ -13,6 +17,8 @@ const AddLessons = ({
   handleAddLesson,
   uploading,
   uploadButton,
+  progress,
+  handleVideoRemove,
 }) => {
   return (
     <>
@@ -57,12 +63,29 @@ const AddLessons = ({
             type="file"
             accept="video/*"
             hidden
-            fullWidth
+            sx={{ width: "50ch" }}
             variant="standard"
           />
+          {!uploading && values.video.Location && (
+            <Tooltip title="Remove" placement="top">
+              <Button onClick={handleVideoRemove} color="error">
+                <CancelPresentationIcon />
+              </Button>
+            </Tooltip>
+          )}
+          {uploading && progress > 0 && (
+            <Box sx={{ width: "100%" }}>
+              <LinearProgress color="success" />
+            </Box>
+          )}
+
           <DialogActions>
-            <Button type="submit" onClick={handleClose} loading={uploading}>
-              Save Lesson
+            <Button
+              type="submit"
+              disabled={uploading}
+              loading={uploading}
+            >
+              {uploading ? "Uploading..." : "Save & Continue"}
             </Button>
           </DialogActions>
         </form>

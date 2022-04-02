@@ -1,25 +1,36 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import InstructorRoute from "../../../components/routes/InstructorRoute";
-import CreateCourse from "../../../components/forms/CreateCourse";
+import InstructorRoute from "../../../../components/routes/InstructorRoute";
+import CreateCourse from "../../../../components/forms/CreateCourse";
 import Resizer from "react-image-file-resizer";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 
-const CreateCoursePage = () => {
+const EditCoursePage = () => {
   const router = useRouter();
+  const { slug } = router.query;
+
   const [values, setValues] = useState({
     name: "",
     description: "",
     price: "",
     category: "",
     uploading: false,
-    paid: true,
+    paid: false,
     loading: false,
   });
   const [image, setImage] = useState({});
   const [preview, setPreview] = useState("");
   const [uploadButton, setUploadButton] = useState("Upload Image");
+
+  useEffect(() => {
+    loadCourse();
+  }, [slug]);
+
+  const loadCourse = async () => {
+    const { data } = await axios.get(`/api/course/${slug}`);
+    setValues(data);
+  };
 
   const handleChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
@@ -81,7 +92,7 @@ const CreateCoursePage = () => {
 
   return (
     <InstructorRoute>
-      <h1 className="text-center">Create Course</h1>
+      <h1 className="text-center">Update Course</h1>
       <div className="pt-12 pb-12">
         <CreateCourse
           handleSubmit={handleSubmit}
@@ -94,10 +105,8 @@ const CreateCoursePage = () => {
           handleImageRemove={handleImageRemove}
         />
       </div>
-      {/* <pre>{JSON.stringify(values, null, 4)}</pre>
-      <pre>{JSON.stringify(image, null, 4)}</pre> */}
     </InstructorRoute>
   );
 };
 
-export default CreateCoursePage;
+export default EditCoursePage;

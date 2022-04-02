@@ -1,11 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import InstructorRoute from "../../components/routes/InstructorRoute";
 import Image from "next/image";
 import Link from "next/link";
+import { useTheme } from "@mui/material/styles";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import { Context } from "../../context";
 
 const index = () => {
   const [courses, setCourses] = useState([]);
+
+  const { state } = useContext(Context);
+  const { user } = state;
+
   useEffect(() => {
     loadCourses();
   }, []);
@@ -17,7 +26,39 @@ const index = () => {
 
   return (
     <InstructorRoute>
-      <h1>Instructor Dashboard</h1>
+      <Card>
+        <center>
+          <CardContent
+            sx={{
+              mx: "auto",
+              p: 1,
+              m: 1,
+              textAlign: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Typography
+              sx={{ mx: "auto", p: 1, m: 1, textAlign: "center" }}
+              component="div"
+              variant="h2"
+              fontWeight={800}
+              fontSize={24}
+            >
+              Instructor Dashboard
+            </Typography>
+            <Typography
+              variant="h4"
+              color="text.secondary"
+              component="div"
+            >
+              {user &&
+                user.role &&
+                user.role.includes("Instructor") &&
+                user.firstName + " " + user.lastName}
+            </Typography>
+          </CardContent>
+        </center>
+      </Card>
 
       {courses &&
         courses.map((course, index) => (
@@ -33,7 +74,7 @@ const index = () => {
                 className="w-1/2 h-full rounded-l-sm"
                 src={course.image ? course.image.Location : "/course.png"}
                 alt="Room Image"
-                width={500}
+                width={700}
                 height={350}
               />
               <div className="w-full flex flex-col">
@@ -57,7 +98,7 @@ const index = () => {
                     ) : course.published ? (
                       <span>Course Live</span>
                     ) : (
-                      <span>Draft</span>
+                      <span className="text-xl text-yellow-400">Draft</span>
                     )}
                   </span>
                   <div className="flex items-center mt-4">
