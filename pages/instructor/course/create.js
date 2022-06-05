@@ -25,6 +25,10 @@ const CreateCoursePage = () => {
     setValues({ ...values, [e.target.name]: e.target.value });
   };
 
+  const handleEChange = (description, editor) => {
+    setValues({ ...values, description: description });
+  }
+
   const handleImage = (e) => {
     let file = e.target.files[0];
     setPreview(window.URL.createObjectURL(file));
@@ -92,6 +96,7 @@ const CreateCoursePage = () => {
           preview={preview}
           uploadButton={uploadButton}
           handleImageRemove={handleImageRemove}
+          handleEChange={handleEChange}
         />
       </div>
       {/* <pre>{JSON.stringify(values, null, 4)}</pre>

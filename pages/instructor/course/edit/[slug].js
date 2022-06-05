@@ -5,6 +5,13 @@ import CreateCourse from "../../../../components/forms/CreateCourse";
 import Resizer from "react-image-file-resizer";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
+import Box from "@mui/material/Box";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
 const EditCoursePage = () => {
   const router = useRouter();
@@ -18,6 +25,7 @@ const EditCoursePage = () => {
     uploading: false,
     paid: false,
     loading: false,
+    lessons: [],
   });
   const [image, setImage] = useState({});
   const [preview, setPreview] = useState("");
@@ -29,7 +37,8 @@ const EditCoursePage = () => {
 
   const loadCourse = async () => {
     const { data } = await axios.get(`/api/course/${slug}`);
-    setValues(data);
+    if (data) setValues(data);
+    setImage(data && data.image);
   };
 
   const handleChange = (e) => {
@@ -61,7 +70,6 @@ const EditCoursePage = () => {
   };
 
   const handleImageRemove = async () => {
-    // console.log("Remove Image");
     try {
       setValues({ ...values, loading: true });
       const res = await axios.post("/api/course/remove-image", { image });
@@ -76,18 +84,60 @@ const EditCoursePage = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = axios.post("/api/course", {
+      const { data } = await axios.put(`/api/course/${slug}`, {
         ...values,
         image,
       });
-      toast.success("Course created Successfully! Now start uploading lessons");
-      router.push("/instructor");
+      toast.success("Course updated Successfully!");
+      // router.push("/instructor");
     } catch (err) {
       toast.error(err.response.data);
     }
+  };
+
+  const handleDrag = (e, index) => {
+    e.dataTransfer.setData("itemIndex", index);
+  };
+
+  const handleDrop = async (e, index) => {
+    const movingItemIndex = e.dataTransfer.getData("itemIndex");
+    const targetItemIndex = index;
+    let allLessons = values.lessons;
+
+    const movingItem = allLessons[movingItemIndex];
+    allLessons.splice(movingItemIndex, 1);
+    allLessons.splice(targetItemIndex, 0, movingItem);
+
+    setValues({ ...values, lessons: [...allLessons] });
+
+    // save the new lessons order in db
+    const { data } = await axios.put(`/api/course/${slug}`, {
+      ...values,
+      image,
+    });
+    toast.success("Lessons Rearranged Successfully!", data);
+  };
+
+  const listLessons = () => {
+    return values?.lessons?.map((c, index) => {
+      return (
+        <ListItem key={index} disablePadding>
+          <ListItemButton
+            draggable
+            onDragStart={(e) => handleDrag(e, index)}
+            onDrop={(e) => handleDrop(e, index)}
+          >
+            <ListItemIcon>
+              <PlayArrowIcon />
+            </ListItemIcon>
+            <ListItemText primary={c.title} />
+          </ListItemButton>
+        </ListItem>
+      );
+    });
   };
 
   return (
@@ -103,7 +153,21 @@ const EditCoursePage = () => {
           preview={preview}
           uploadButton={uploadButton}
           handleImageRemove={handleImageRemove}
+          editPage={true}
         />
+      </div>
+      <div className="p-6">
+        <h3 className="text-2xl font-semibold text-gray-800">
+          {values && values.lessons && values.lessons.length} Lessons
+        </h3>
+        <Box
+          sx={{
+            width: "100%",
+            bgcolor: "background.paper",
+          }}
+        >
+          <List onDragOver={(e) => e.preventDefault()}>{listLessons()}</List>
+        </Box>
       </div>
     </InstructorRoute>
   );
